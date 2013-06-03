@@ -1,0 +1,238 @@
+﻿<Window x:Class="doubanFM.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        
+        Title="豆瓣FM" Height="230" Width="525" Topmost="False" WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True" Background="Transparent" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Icon="Images/Logo.ico">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="150"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Border Name="backBorder" CornerRadius="5" Grid.RowSpan="4" Background="#FF83C1D8">
+        </Border>
+        
+        <!--标题栏-->
+        <Canvas Name="titleCanvas" Grid.Row="0" Grid.Column="0" Background="Transparent">
+            <Image Source="Images/logo.png" Margin="10,5" Width="20" Height="20"/>
+            <Label Name="softwareTitle" Content="豆瓣FM--华语兆赫" Margin="30,5,0,0"/>
+            <Image Name="topButton" Source="Images/AlwaysTop.png" Canvas.Right="40" Width="20" Margin="5"/>
+            <Image Name="minButton" Source="Images/Minus.png" Canvas.Right="20" Width="20" Margin="5"/>
+            <Image Name="closeButton" Source="Images/Close.png" Canvas.Right="0" Width="20" Margin="5"/>
+            <!--<Separator Canvas.Bottom="0" Width="525" Background="White"/>-->
+        </Canvas>
+        <!--播放控制栏-->
+        <Canvas Grid.Row="1" Grid.Column="0">
+            <!--专辑封面-->
+            <Image Name="playerAlbum" Width="150" Height="150" Source="Images/DefaultAlbum.png" Margin="2,-2"/>
+            <!--控制按钮-->
+            <Canvas Height="150" Canvas.Left="150" Width="375">
+                <Label Name="playerSongName" Content="Loading..." Canvas.Left="10" Canvas.Top="2" FontSize="20"/>
+                <Label Name="playerSingerAlbum" Canvas.Left="10" Canvas.Top="40"/>
+                <ProgressBar Name="playerProgress" Height="4" Canvas.Left="10" Canvas.Top="65" Width="355"  
+                             Foreground="#FF599737"/>
+                <Label Name="playerSongTime" Canvas.Right="5" Canvas.Top="40"/>
+                <!--控制按钮-->
+                <Canvas Canvas.Left="0" Canvas.Top="80">
+                    <Image Name="playerPlay" Height="40" Width="40" Source="Images/Pause.png" Margin="16,10" Tag="Pause" MouseLeftButtonDown="playerPlay_MouseLeftButtonDown"/>
+                    <Image Name="playerLike" Height="40" Width="40" Source="Images/Heart.png" Margin="66,10" Tag="Like" MouseLeftButtonDown="playerLike_MouseLeftButtonDown"/>
+                    <Image Name="playerSkip" Height="40" Width="40" Source="Images/Next.png" Margin="116,10" MouseLeftButtonDown="playerSkip_MouseLeftButtonDown"/>
+                    <Image Name="playerBan" Height="40" Width="40" Source="Images/Garbage.png" Margin="166,10" MouseLeftButtonDown="playerBan_MouseLeftButtonDown"/>
+                    <Image Name="playerNext" Height="40" Width="40" Source="Images/ListNext.png" Margin="216,10" />
+                    <!--<Image Height="40" Width="40" Source="Images/Download.png" Margin="216,10"/>-->
+                    <Image Height="20" Width="20" Source="Images/Volume.png" Margin="280,20"/>
+                    <Slider Name="volumeSlider" Width="60" Height="20" Margin="306,20" Value="5"/>
+                    <MediaElement Name="player" Visibility="Collapsed" LoadedBehavior="Manual" MediaEnded="player_MediaEnded"/>
+                    <MediaElement Name="searchplayer" Visibility="Collapsed" LoadedBehavior="Manual" Tag="Pause"/>
+                </Canvas>
+            </Canvas>
+            <!--<Separator Canvas.Bottom="0" Width="525" Background="White"/>-->
+        </Canvas>
+        <!--操作按钮栏-->
+        <Canvas Grid.Row="2" Grid.Column="0" Name="opCanvas">
+            <Border Name="loginBorder" Margin="20,0" Style="{StaticResource opBorder}" Tag="0">
+                <Canvas Name="opLoginCanvas" MouseLeftButtonDown="opLoginCanvas_MouseLeftButtonDown">
+                    <Image Source="Images/Login.png"/>
+                    <Label Name="loginTitle" Content="登陆" Margin="35,10" FontSize="18" Foreground="White" FontWeight="Bold"/>
+                </Canvas>
+            </Border>
+            <Border Name="channelBorder" Margin="110,0" Style="{StaticResource opBorder}" Tag="1">
+                <Canvas>
+                    <Image Source="Images/Channel.png"/>
+                    <Label Content="频道" Margin="35,10" FontSize="18" Foreground="White" FontWeight="Bold"/>
+                </Canvas>
+            </Border>
+            <Border Name="settingBorder" Margin="200,0" Style="{StaticResource opBorder}" Tag="2">
+                <Canvas>
+                    <Image Source="Images/Setting.png"/>
+                    <Label Content="设置" Margin="35,10" FontSize="18" Foreground="White" FontWeight="Bold"/>
+                </Canvas>
+            </Border>
+            <Border Name="searchBorder" Margin="290,0" Style="{StaticResource opBorder}" Tag="3">
+                <Canvas>
+                    <Image Source="Images/Search.png"/>
+                    <Label Content="搜索" Margin="35,10" FontSize="18" Foreground="White" FontWeight="Bold"/>
+                </Canvas>
+            </Border>
+            <Border Name="playlistBorder" Margin="380,0" Style="{StaticResource opBorder}" Width="120" Tag="4">
+                <Canvas>
+                    <Image Source="Images/List.png"/>
+                    <Label Content="播放列表" Margin="35,10" FontSize="18" Foreground="White" FontWeight="Bold"/>
+                </Canvas>
+            </Border>
+        </Canvas>
+        <!--弹出栏，附加信息显示和操作-->
+        <Canvas Name="overWindowCanvas" Grid.Row="3" Grid.Column="0">
+            <Canvas Visibility="Hidden">
+                <Separator Canvas.Top="0" Width="480" Background="White" Margin="20,-2"/>
+                <!--登陆窗口-->
+                <Canvas Name="loginCanvas" Visibility="Hidden">
+                    <Label Content="用户名/邮箱" Canvas.Left="45" Canvas.Top="33"/>
+                    <Label Content="密码" Canvas.Left="86" Canvas.Top="74"/>
+                    <Label Content="验证码" Canvas.Left="74" Canvas.Top="113"/>
+                    <TextBox Name="userName" Height="30" Canvas.Left="145" Text="" Canvas.Top="29" Width="216" FontSize="20"/>
+                    <PasswordBox Name="userPassword" Canvas.Left="145" Canvas.Top="71" Width="216" Height="30" FontSize="20"/>
+                    <TextBox Name="userCaptcha" Height="30" Canvas.Left="145"  Text="" Canvas.Top="111" Width="216" FontSize="20"/>
+                    <Image Name="captchaImage" Height="30" Canvas.Left="145" Canvas.Top="149" Width="216"/>
+                    <Label Name="errorMessage" Content="" Foreground="Red" Canvas.Left="380" Canvas.Top="116" Width="136"/>
+                    <Border Style="{StaticResource opBorder}" Width="80" Canvas.Left="380" Canvas.Top="71" Background="YellowGreen">
+                        <Canvas Name="loginButton" MouseLeftButtonDown="loginButton_MouseLeftButtonDown">
+                            <Image Source="Images/Login.png"/>
+                            <Label Content="登陆" Margin="35,10" FontSize="18" Foreground="White"/>
+                        </Canvas>
+                    </Border>
+                </Canvas>
+                <!--登陆用户信息窗口-->
+                <Canvas Name="loginedCanvas" Height="180" Width="479">
+                    <Canvas Canvas.Left="20" Canvas.Top="10" Height="40" Width="326">
+                        <Image Source="Images/Login.png"/>
+                        <Label Content="用户名" Margin="35,10" FontSize="14" Foreground="White"/>
+                        <Label Name="loginedName" Content="justplus" Canvas.Right="100" Canvas.Top="10" FontSize="18" Foreground="#599737"/>
+                    </Canvas>
+                    <Canvas Canvas.Left="20" Canvas.Top="50" Height="40" Width="326">
+                        <Image Source="Images/UserPlayed.png"/>
+                        <Label Content="收听" Margin="35,10" FontSize="14" Foreground="White"/>
+                        <Label Name="loginedPlayed" Content="18首" Canvas.Right="100" Canvas.Top="10" FontSize="18" Foreground="#599737"/>
+                    </Canvas>
+                    <Canvas Canvas.Left="20" Canvas.Top="90" Height="40" Width="326">
+                        <Image Source="Images/UserHeart.png"/>
+                        <Label Content="喜欢" Margin="35,10" FontSize="14" Foreground="White"/>
+                        <Label Name="loginedLiked" Content="12首" Canvas.Right="100" Canvas.Top="10" FontSize="18" Foreground="#599737"/>
+                    </Canvas>
+                    <Canvas Canvas.Left="20" Canvas.Top="130" Height="40" Width="326">
+                        <Image Source="Images/UserGabage.png"/>
+                        <Label Content="不再播放" Margin="35,10" FontSize="14" Foreground="White"/>
+                        <Label Name="loginedBanned" Content="2首" Canvas.Right="100" Canvas.Top="10" FontSize="18" Foreground="#599737"/>
+                    </Canvas>
+                    <Border Style="{StaticResource opBorder}" Width="80" Canvas.Left="380" Canvas.Top="71" Background="Red">
+                        <Canvas Name="logoutButton">
+                            <Image Source="Images/LogOut.png"/>
+                            <Label Content="注销" Margin="35,10" FontSize="18" Foreground="White"/>
+                        </Canvas>
+                    </Border>
+                </Canvas>
+            </Canvas>
+            <Canvas Visibility="Hidden">
+                <Separator Canvas.Top="0" Width="480" Background="White" Margin="20,-2"/>
+                <Border Margin="20,5" Style="{StaticResource opBorder}" Background="Red" Width="120">
+                    <Canvas Name="favChannelCanvas">
+                        <Image Source="Images/Favorite.png"/>
+                        <Label Content="我的收藏" Margin="35,10" FontSize="18" Foreground="White"/>
+                    </Canvas>
+                </Border>
+                <Border Margin="150,5" Style="{StaticResource opBorder}" Background="Blue" Width="120">
+                    <Canvas Name="hotChannelCanvas">
+                        <Image Source="Images/Hot.png"/>
+                        <Label Content="热门兆赫" Margin="35,10" FontSize="18" Foreground="White"/>
+                    </Canvas>
+                </Border>
+                <Border Margin="280,5" Style="{StaticResource opBorder}" Background="Green" Width="120">
+                    <Canvas Name="uptrendChannelCanvas">
+                        <Image Source="Images/Up.png"/>
+                        <Label Content="上升最快" Margin="35,10" FontSize="18" Foreground="White"/>
+                    </Canvas>
+                </Border>
+                <Border Margin="410,5" Style="{StaticResource opBorder}" Background="YellowGreen" Width="80">
+                    <Canvas Name="searchChannelCanvas">
+                        <Image Source="Images/Search.png"/>
+                        <Label Content="搜索" Margin="35,10" FontSize="18" Foreground="White"/>
+                    </Canvas>
+                </Border>
+                <!--兆赫列表-->
+                <Canvas Name="channelControlCanvas" Canvas.Left="20" Canvas.Top="70">
+                    <Label Name="tipLabel" FontSize="18" Canvas.Left="20"/>
+                    <Canvas Name="searchBoxCanvas" Visibility="Collapsed">
+                        <TextBox Name="queryWord" Width="205" Height="30" Canvas.Left="85" FontSize="16"/>
+                        <Border Margin="300,0" Style="{StaticResource opBorder}" Background="YellowGreen" Width="80" Height="30">
+                            <Canvas Name="searchBoxChannelCanvas">
+                                <Image Source="Images/Search.png" Width="30" Height="30"/>
+                                <Label Content="搜索" Margin="25,0" FontSize="18" Foreground="White"/>
+                            </Canvas>
+                        </Border>
+                    </Canvas>
+                </Canvas>
+                <!--兆赫列表-->
+                <Canvas Name="channelTable" Canvas.Left="20" Canvas.Top="70">
+                </Canvas>
+                <!--翻页-->
+                <Image Name="decPage" Source="Images/Left.png" Width="40" Height="40" Canvas.Left="0" Canvas.Top="180" Visibility="Collapsed"/>
+                <Image Name="ascPage" Source="Images/Right.png" Width="40" Height="40" Canvas.Left="485" Canvas.Top="180" Visibility="Collapsed"/>
+            </Canvas>
+            <!--设置-->
+            <Canvas Visibility="Hidden">
+                <Separator Canvas.Top="0" Width="480" Background="White" Margin="20,-2"/>
+                <Label Canvas.Left="45" Canvas.Top="15" Content="背景" FontSize="18" Foreground="White"/>
+                <Border Name="colorborder1" Style="{StaticResource opBorder}" Background="#FF83D2F0" Width="20" Height="20" Canvas.Left="100" Canvas.Top="20" BorderThickness="1" BorderBrush="White"/>
+                <Border Name="colorborder2" Style="{StaticResource opBorder}" Background="#FF8460A8" Width="20" Height="20" Canvas.Left="130" Canvas.Top="20" BorderThickness="1" BorderBrush="White"/>
+                <Border Name="colorborder3" Style="{StaticResource opBorder}" Background="#FFDA9D79" Width="20" Height="20" Canvas.Left="160" Canvas.Top="20" BorderThickness="1" BorderBrush="White"/>
+                <Border Name="colorborder4" Style="{StaticResource opBorder}" Background="#FF99A61B" Width="20" Height="20" Canvas.Left="190" Canvas.Top="20" BorderThickness="1" BorderBrush="White"/>
+                <Border Name="colorborder5" Style="{StaticResource opBorder}" Background="#FF61AC76" Width="20" Height="20" Canvas.Left="220" Canvas.Top="20" BorderThickness="1" BorderBrush="White"/>
+                <Border Name="colorborder6" Style="{StaticResource opBorder}" Background="#FFF586AE" Width="20" Height="20" Canvas.Left="250" Canvas.Top="20" BorderThickness="1" BorderBrush="White"/>
+                <Border Name="colorborder7" Style="{StaticResource opBorder}" Background="#FF617CAC" Width="20" Height="20" Canvas.Left="280" Canvas.Top="20" BorderThickness="1" BorderBrush="White"/>
+                <Border Name="colorborder8" Style="{StaticResource opBorder}" Background="#FF6F61AC" Width="20" Height="20" Canvas.Left="310" Canvas.Top="20" BorderThickness="1" BorderBrush="White"/>
+                <Border Name="colorborder9" Style="{StaticResource opBorder}" Background="#FF61ACA2" Width="20" Height="20" Canvas.Left="340" Canvas.Top="20" BorderThickness="1" BorderBrush="White"/>
+                <Border Name="colorborder10" Style="{StaticResource opBorder}" Background="#FFB681BD" Width="20" Height="20" Canvas.Left="370" Canvas.Top="20" BorderThickness="1" BorderBrush="White"/>
+                <Border Name="colorborder11" Style="{StaticResource opBorder}" Background="Transparent" Width="20" Height="20" Canvas.Left="400" Canvas.Top="20" BorderThickness="1" BorderBrush="White"/>
+                <Border Style="{StaticResource opBorder}" Background="YellowGreen" Width="140" Height="30" Canvas.Left="100" Canvas.Top="60">
+                    <Canvas Name="chooseBkCanvas">
+                        <Image Source="Images/Palette.png" Width="30" Height="30"/>
+                        <Label Content="选择背景图片" Margin="25,0" FontSize="18" Foreground="White"/>
+                    </Canvas>
+                </Border>
+                <CheckBox Name="lyricEnable" IsChecked="True" Canvas.Left="48" Canvas.Top="110"/>
+                <Label Content="开启桌面歌词" Canvas.Left="65" Canvas.Top="100" FontSize="18" Foreground="White"/>
+            </Canvas>
+            <!--歌曲搜索-->
+            <Canvas Visibility="Hidden">
+                <Separator Canvas.Top="0" Width="480" Background="White" Margin="20,-2"/>
+                <TextBox Name="querySongWord" Width="205" Height="30" Canvas.Left="85" Canvas.Top="5" FontSize="16"/>
+                <ComboBox Name="queryType" Canvas.Left="289" Canvas.Top="5" Height="30" Width="80" SelectedIndex="0">
+                    <ComboBox.Items>
+                        <TextBlock Text="搜全部" FontSize="16"/>
+                        <TextBlock Text="搜歌名" FontSize="16"/>
+                        <TextBlock Text="搜专辑" FontSize="16"/>
+                        <TextBlock Text="搜歌手" FontSize="16"/>
+                    </ComboBox.Items>
+                </ComboBox>
+                <Border Margin="380,5" Style="{StaticResource opBorder}" Background="YellowGreen" Width="80" Height="30">
+                    <Canvas Name="querySongCanvas">
+                        <Image Source="Images/Search.png" Width="30" Height="30"/>
+                        <Label Content="搜索" Margin="25,0" FontSize="18" Foreground="White"/>
+                    </Canvas>
+                </Border>
+                <Label Name="tipSongLabel" FontSize="18" Canvas.Left="20" Canvas.Top="45"/>
+                <ScrollViewer Canvas.Left="20" Canvas.Top="50" Height="270" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Name="SongsQueryed"/>
+                </ScrollViewer>
+            </Canvas>
+            <!--播放列表-->
+            <Canvas Visibility="Hidden">
+                <Separator Canvas.Top="0" Width="480" Background="White" Margin="20,-2"/>
+                <ScrollViewer Canvas.Left="20" Canvas.Top="5" Height="310" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Name="songListCanvas"/>
+                </ScrollViewer>
+            </Canvas>
+        </Canvas>
+    </Grid>
+</Window>
